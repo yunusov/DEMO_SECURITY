@@ -1,22 +1,53 @@
 package com.example.demo.controller;
 
-import com.example.demo.DemoApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping(value = "/hello")
+import java.util.Locale;
+
+@Controller
 public class HelloController {
+    @GetMapping(value = {"/", "/index"})
+    public String index(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        if (username!= null) {
+            if ("ADMIN".equals(username.toUpperCase(Locale.ROOT))) {
+                model.addAttribute("isAdmin", true);
+            } else if ("USER".equals(username.toUpperCase(Locale.ROOT))) {
+                model.addAttribute("isUser", true);
+            } else {
+                model.addAttribute("isAnon", true);
+            }
+        }
+        return "/index";
+    }
 
-    private static Logger log = LoggerFactory.getLogger(HelloController.class);
+    @GetMapping("/admin")
+    public String admin() {
+        return "/admin";
+    }
 
-    @GetMapping("/world")
-    public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
-        log.error("test");
-        return String.format("Hello %s!", name);
+    @GetMapping("/user")
+    public String user() {
+        return "/user";
+    }
+
+    @GetMapping("/about")
+    public String about() {
+        return "/about";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "/login";
+    }
+
+    @GetMapping("/403")
+    public String error403() {
+        return "/error/403";
     }
 }
